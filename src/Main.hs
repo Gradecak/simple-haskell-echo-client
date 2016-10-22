@@ -3,7 +3,6 @@ module Main where
 import qualified Network.Socket as Net
 import qualified Network.Socket.ByteString as NetBs
 import qualified Data.ByteString.Char8 as ByteS
-import qualified Data.ByteString.Base64 as Base64 
 import qualified Http (generateGetHeader)
 
 initClient :: IO Net.Socket
@@ -16,18 +15,14 @@ initClient = do
 
 sendMessage :: IO Net.Socket -> IO()
 sendMessage iosock = do
-  let msg = Http.generateGetHeader "www.scss.tcd.ie" "/Stephen.Barrett/lectures/cs4032/echo.php" "Z3JhZGVjYW06VnVrb3Zhcjkx"
+  let msg = Http.generateGetHeader "127.0.0.1" "/echo.php"
       bytes = ByteS.pack msg
-  putStr msg
+      remoteAddr = Net.SockAddrInet 8000 ( Net.tupleToHostAddress (127, 0, 0, 1))
   print $ ByteS.length bytes
-  addr:_ <- Net.getAddrInfo (Just Net.defaultHints {Net.addrSocketType = Net.Stream}) (Just "www.scss.tcd.ie") (Just "80")
   sock <- iosock
-  print (Net.addrAddress addr)
-  Net.connect sock (Net.addrAddress addr)
-  len <- NetBs.send sock bytes
-  print len
+  Net.connect sock remoteAddr
+  _ <- NetBs.send sock bytes
   response <- NetBs.recv sock 4096
-  print "got here"
   print response
 
 main :: IO ()
@@ -35,4 +30,3 @@ main = do
   sock <- initClient
   sendMessage $ return sock
   putStrLn "hello worl"
-
