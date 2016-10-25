@@ -19,5 +19,6 @@ executable echoServer
   build-depends:       base >= 4.7 && < 5,
                        network >= 2.6.3.1,
                        bytestring,
-                       base64-bytestring
+                       base64-bytestring,
+                       split
   other-modules:       Http
