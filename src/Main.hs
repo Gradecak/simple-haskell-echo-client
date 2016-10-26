@@ -12,10 +12,7 @@ initClient :: IO Net.Socket
 initClient = do
   let hints = Net.defaultHints {Net.addrSocketType = Net.Stream}
   addr:_ <- Net.getAddrInfo (Just hints) (Just "localhost") (Just "5000")
-  sock <- Net.socket (Net.addrFamily addr) (Net.addrSocketType addr) (Net.addrProtocol addr)
-  Net.setSocketOption sock Net.ReuseAddr 1
-  Net.setSocketOption sock Net.NoDelay 0
-  return sock
+  Net.socket (Net.addrFamily addr) (Net.addrSocketType addr) (Net.addrProtocol addr)
 
 --continuously read from socket until it sends length 0 message (ie remote socket is finished sending)
 readSock :: Net.Socket -> Int -> IO [B.ByteString] -> IO B.ByteString 
@@ -25,13 +22,11 @@ readSock s _ m = do
   readSock s (B.length msg) $ m >>= (\p -> return(p++[msg]))
 
 --send a message to remote socket and return its response
-sendMessage :: String -> String -> String -> IO Net.Socket -> IO String
-sendMessage remote port params iosock = do
-  let bytes = pack $ generateGetHeader remote "/echo.php" params
+sendMessage :: String -> String -> String ->Net.Socket -> IO String
+sendMessage remote port params sock = do
   addr:_ <- Net.getAddrInfo Nothing (Just remote) (Just port) -- resolves hostname if hostname provided instead of ip
-  sock <- iosock
   Net.connect sock (Net.addrAddress addr)
-  sendAll sock bytes
+  sendAll sock $ pack $ generateGetHeader remote "/echo.php" params
   response <-  readSock sock 1 (return [])
   print response
   return $ parseBody $ unpack response
@@ -40,6 +35,6 @@ main :: IO ()
 main = do
   (remote:port:msg:_) <- getArgs
   sock <- initClient
-  re <- sendMessage remote port msg $ return sock
+  re <- sendMessage remote port msg sock
   putStrLn re
   Net.close sock
