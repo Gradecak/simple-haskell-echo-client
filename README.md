@@ -12,4 +12,12 @@ example
 stack exec echoClient localhost 8000 /echo.php message=test\ message
 ```
 
-note the use of \ to escape whitespace character
+__note the use of \ to escape whitespace character__
+
+This client has been tested with the supplied echo.php server which can be found in the root directory of this project
+
+
+to run server navigate to where the echo.php file is located and execute
+```bash
+php -S localhost:8000 -t .
+```
