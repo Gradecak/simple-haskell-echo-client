@@ -1,5 +1,6 @@
 <?php
 
+
 /* Simple php echo page for software programming exercise 1 
    Copyright Stephen Barrett
 
