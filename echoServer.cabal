@@ -21,4 +21,3 @@ executable echoServer
                        bytestring,
                        base64-bytestring,
                        split
-  other-modules:       Http
